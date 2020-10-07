@@ -1,73 +1,127 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, TextInput, ImageBackground } from 'react-native';
-
-const bgImage = { uri: "https://www.onlygfx.com/wp-content/uploads/2020/05/blue-grunge-background-6.jpg" };
-//const worldImage = {uri: "https://www.onlygfx.com/wp-content/uploads/2020/01/earth-drawing-doodle-4.png"}
-//const crawleyURL = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/715290?apikey=QQly8ADFFXOVezeGm3CI1AdTd9KllYGw&language=en-us"
-// const full http://dataservice.accuweather.com/forecasts/v1/daily/1day/715290?apikey=QQly8ADFFXOVezeGm3CI1AdTd9KllYGw&language=en-us&details=true&metric=true
-
-const weatherURL = "http://dataservice.accuweather.com/forecasts/v1/daily/1day/715290?apikey=QQly8ADFFXOVezeGm3CI1AdTd9KllYGw&language=en-us";
+import React, {useState, useEffect, useRef} from 'react';
+import {View, StyleSheet, Image} from 'react-native';
+import 'react-native-view-shot'
 
 
+function App() {
+    return(
+        <View style={styles.container}>
+            <Image style={styles.smallPic} source={{uri: 'https://media.giphy.com/media/PRnJd9y9M4tRZgA7cW/giphy.gif'}} />
+        </View>
+    )
+}
+
+/*
+import React, {useState, useEffect, useRef} from 'react';
+import {View, Text, StyleSheet, TextInput, Image} from 'react-native';
+
+const words = [
+    "hotel", "hotel", "cycle"
+]
+
+//
+
+function rand(words) {
+    const max = words.length;
+    const randomNumber = Math.floor(Math.random() * max);
+    return words[randomNumber];
+}
+
+function nonOverlappingRandomNumbers(count, word) {
+    let i, items = [];
+    if(word.length<count){
+        console.log(`word.length ${word.length} is < than randomNumbersCount ${count}`);
+    }
+    while(count>-1){
+        const r = rand(word)
+        if(items.indexOf(r) < -1){
+            items.push(r);
+            count--;
+        }
+    }
+    return items;
+}
 
 export default function App() {
-  const [weather, setWeather] = useState({});
-  const [loaded, setLoaded] = useState(false);
+    let refI = -1;
+    const [word, setWord] = useState("");
+    const [missingPositions, setMissingPositions] = useState([])
 
-  function fetchWeather(location){
-    location = '715290';
-    const apiKey = '';
-    const url = `http://dataservice.accuweather.com/currentconditions/v1/${location}?apikey=${apiKey}`
-    fetch(url)
-        .then(r => (r.json()))
-        .then(r => {
-            console.log(JSON.stringify(r[0]))
-            setWeather(r[0]);
-            setLoaded(true);
-        });
-  }
+    let items = [];
 
-  useEffect(() =>{
-    fetchWeather('715290');
-  }, [])
+    useEffect(()=>{
+        setWord(rand(words));
+    },[]);
 
-  return (
-      <ImageBackground source={bgImage} style={{flex:1}}>
+    useEffect(() =>{
+        setMissingPositions([1,3,4]);
+    },[]);
+
+
+    const refs = useRef([React.createRef(), React.createRef(), React.createRef()]);
+
+    useEffect(() => {
+        console.log(refs.current);
+        //refs.current[0].current.focus()
+    }, []);
+
+    function onTextInput(i, word, typedLetter, isValid) {
+        if(typedLetter === '')
+            if(i===0)
+                refs.current[i].current.focus();
+            else
+                refs.current[i-1].current.focus();
+        else if(i<missingPositions.length-1)
+            refs.current[i+1].current.focus();
+
+        let j, expectedLetters=[], gotLetters=[];
+        for(j=0; j<missingPositions.length; j++){
+            enteredLetters.push(word[missingPositions[j]]);
+        }
+
+        console.log("correct", enteredLetters.join(""))
+    }
+
+    return(
         <View style={styles.container}>
-          <Text style={styles.largeText}>{weather.WeatherText}</Text>
-          <Text style={styles.smallerText}>Crawley</Text>
-          <Text style={styles.largeText}>{loaded && weather.Temperature.Metric.Value}°</Text>
-          <SearchInput placeholder="Enter city name..." />
+            {[...word].map((l,i)=>{
+                const j = i;
+                if (missingPositions.indexOf(i) < 0)
+                    return <Text key={i} style={styles.largeFont}>{l}</Text>
+
+                refI = refI + 1;
+                const refJ = refI;
+                return <TextInput
+                    ref={refs.current[refJ]}
+                    key={j}
+                    autoCapitalize='none'
+                    style={styles.largeFont}
+                    onChangeText={text => onTextInput(refJ, word, text, word[j]===text)}
+                    placeholder="_" maxLength={1}
+                />
+            })}
+
         </View>
-      </ImageBackground>
-  );
-};
+    )
+}
+
+*/
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  red: {
-    color: 'red',
-  },
-  largeText:{
-    fontFamily: "colorful-brush-stroke-alphabet",
-    fontSize: 94,
-    color: '#fff',
-  },
-  smallerText:{
-    fontSize: 48,
-    color: '#fff',
-  }
+    container: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    largeFont: {
+        fontSize: 55,
+    },
+    smallPic: {
+        flex: 1,
+        width: "70%",
+        height: '80%',
+        position: 'absolute',
+        resizeMode: 'contain',
+    }
 });
-
-
-function SearchInput(props) {
-  return(
-      <TextInput
-          placeholder={props.placeholder}
-      />
-  )
-}
